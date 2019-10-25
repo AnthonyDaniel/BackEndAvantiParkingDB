@@ -139,7 +139,7 @@ Route::group([
     Get http://127.0.0.1:8000/api/espacio_especial
     */
     Route::get('espacio_especial','Espacio@obtenerEspaciosEspecial');
-
+    Route::get('espacio_parqueo_tipo_disponibilidad/{parqueo}/{tipo}/{disponibilidad}','Espacio@obtenerEspacioParqueoTipoDisponibilidad');
     /*
     Post http://127.0.0.1:8000/api/espacio
     {

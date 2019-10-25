@@ -32,6 +32,15 @@ class Espacio extends Controller
     {
         return DB::select('SELECT * FROM view_espacio_tipo_especial');
     }
+    public function obtenerEspacioParqueoTipoDisponibilidad($parqueo,$tipo,$disponibilidad){
+        try{
+            $data = DB::select("select * from  vistaEspacioPorSedes(".$parqueo.",'".$tipo."',".$disponibilidad.")");
+            return  response()->json(['data' => $data], 200);
+
+        }catch(\Illuminate\Database\QueryException $e){
+            return  response()->json(['error' => $e], 406);
+        }
+    }
     public function guardarEspacio(Request $request){
         $nombre = $request->nombre;
         $parqueo = $request->parqueo;
