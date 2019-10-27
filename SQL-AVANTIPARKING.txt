@@ -35,27 +35,33 @@ GO
  BACKUP DATABASE AvantiParking  TO DISK = 'C:\Respaldo\_respaldo.bak'  WITH FORMAT, MEDIANAME = 'SQLServerBackups',  NAME = 'Full Backup of AvantiParking'; 
 
 use AvantiParking
+
 go
-CREATE TABLE usuario(/*Se cambio el nombre de la tabla de users a usuario*/
+
+CREATE TABLE usuario(
 	username nvarchar(50) NOT NULL,
 	id int NOT NULL UNIQUE,
 	nombre nvarchar(50) NOT NULL,
 	direccion nvarchar(50) NOT NULL,
 	telefono int NOT NULL,
 	tipo tinyint,
-	contrasena nvarchar(50) NOT NULL,/*Se cambio el nombre del atributo de password a contrasena*/
+	contrasena nvarchar(50) NOT NULL,
 	CONSTRAINT PK_usuario PRIMARY KEY (username)
 )
+
 GO
+
 CREATE TABLE vehiculo(
 	placa varchar(50) NOT NULL,
 	marca varchar(50) NOT NULL,
 	modelo varchar(50) NOT NULL,
-	usuario nvarchar(50) NOT NULL, /*Se cambio el nombre del atributo de users a usuario*/
+	usuario nvarchar(50) NOT NULL,
 	CONSTRAINT Pk_vehiculo PRIMARY KEY (placa),
 	CONSTRAINT FK_vehiculo_usuario FOREIGN KEY (usuario) REFERENCES Usuario(username)
 ) 
+
 GO
+
 CREATE TABLE sede(
 	id_sede int identity NOT NULL,
 	nombre nvarchar(50) NOT NULL,
@@ -73,7 +79,9 @@ CREATE TABLE parqueo(
 	CONSTRAINT PK_parqueo PRIMARY KEY (id_parqueo),
 	CONSTRAINT FK_parqueo_sede FOREIGN KEY (sede) REFERENCES Sede(id_sede)
 ) 
+
 GO
+
 CREATE TABLE espacio(
 	id_espacio int identity NOT NULL,
 	nombre int NOT NULL,
@@ -83,27 +91,25 @@ CREATE TABLE espacio(
 	CONSTRAINT PK_espacio PRIMARY KEY (id_espacio),
 	CONSTRAINT FK_espacio_parqueo FOREIGN KEY (parqueo) REFERENCES Parqueo(id_parqueo)
 ) 
+
 GO
+
 CREATE TABLE reserva(
-	id_reserva int identity NOT NULL,/*Se cambio el nombre del atributo de id a idReserva*/
-	espacio int NOT NULL,/*Se cambio el nombre del atributo de espacios a espacio*/
+	id_reserva int identity NOT NULL,
+	espacio int NOT NULL,
 	fecha_reserva date NOT NULL,
 	hora_final time(7) NOT NULL,
 	hora_inicio time(7) NOT NULL,
-	usuario nvarchar(50) NOT NULL, /*Se cambio el nombre del atributo de users a usuario*/
+	usuario nvarchar(50) NOT NULL,
 	vehiculo varchar(50) NOT NULL,
 	CONSTRAINT PK_reserva PRIMARY KEY (id_reserva),
 	CONSTRAINT FK_reserva_usuario FOREIGN KEY (usuario) REFERENCES Usuario(username),
 	CONSTRAINT FK_reserva_vehiculo FOREIGN KEY (vehiculo) REFERENCES Vehiculo(placa),
 	CONSTRAINT FK_reserva_espacio FOREIGN KEY (espacio) REFERENCES Espacio(id_espacio)
 )
+
 GO
 
-
-USE AvantiParking
-GO
-/*----------------------------INICIO DE SEDES-----------------------------------------------*/
-/* INICIO DEL PROCEDIMIENTO SEDE AGREGAR */
 create procedure pa_agregar_sede
 	@nombre nvarchar(50),
 	@direccion nvarchar(50)
@@ -115,9 +121,10 @@ begin
 	insert into sede (nombre,direccion)
 	values (@nombre,@direccion);	
 	return 1
-end
- go
-/* INICIO DEL PROCEDIMIENTO SEDE ACTUALIZAR */
+end;
+
+go
+
 create procedure pa_actualizar_sede
 	@id_sede int,
 	@nombre nvarchar(50),
@@ -130,9 +137,10 @@ begin
 	update sede set nombre=@nombre,direccion=@direccion
 	where id_sede = @id_sede;
 	return 1
-end
+end;
+
  go
-/* INICIO DEL PROCEDIMIENTO SEDE ELIMINAR */
+
 create procedure pa_eliminar_sede
 	@id_sede int
 as
@@ -144,19 +152,17 @@ else
 begin	
 	delete from sede where id_sede = @id_sede
 	return 1
-end
+end;
+
  go
-/*INICIO DE LA VISTA DE SEDE*/
+
 create view view_sede
  as 
  select id_sede, nombre, direccion
  from sede;
- /*----------------------------FIN DE SEDES-----------------------------------------------*/
+
  go
 
-
- /*----------------------------INICIO DE parqueo-----------------------------------------------*/
-/* INICIO DEL PROCEDIMIENTO Parqueo AGREGAR */
 create procedure pa_agregar_parqueo
 	@nombre nvarchar(50),
 	@zona nvarchar(50),
@@ -174,9 +180,10 @@ begin
 	insert into parqueo (nombre,zona,cantidad,comienzo,sede)
 	values (@nombre,@zona,@cantidad,@comienzo,@sede);	
 	return 1
-end
+end;
+
  go
-/* INICIO DEL PROCEDIMIENTO Parqueo ACTUALIZAR */
+
 create procedure pa_actualizar_parqueo
 	@id int,
 	@nombre nvarchar(50),
@@ -194,8 +201,9 @@ begin
 	where id_parqueo = @id;
 	return 1
 end
+
  go
-/* INICIO DEL PROCEDIMIENTO Parqueo ELIMINAR */
+
 create procedure pa_eliminar_parqueo
 	@id int
 as
@@ -208,17 +216,16 @@ begin
 	delete from parqueo where id_parqueo = @id
 	return 1
 end
+
  go
-/*INICIO DE LA VISTA DE espacio*/
+
 create view view_parqueo
  as 
  select id_parqueo, parqueo.nombre, zona, cantidad, comienzo, sede.id_sede, sede.nombre as sede
  from parqueo inner join sede on sede.id_sede = parqueo.sede;
- /*----------------------------FIN DE Parqueos-----------------------------------------------*/
+
  go
 
-  /*----------------------------INICIO DE Espacios-----------------------------------------------*/
-/* INICIO DEL PROCEDIMIENTO espacio AGREGAR */
 create procedure pa_agregar_espacio
 	@nombre int,
 	@parqueo int
@@ -230,9 +237,10 @@ begin
 	insert into espacio(nombre,tipo_espacio,estado,parqueo)
 	values (@nombre,'Regular',0,@parqueo);	
 	return 1
-end
+end;
+
  go
-/* INICIO DEL PROCEDIMIENTO espacio ACTUALIZAR */
+
 create procedure pa_actualizar_espacio
 	@id int,
 	@nombre int,
@@ -247,8 +255,9 @@ begin
 	where id_espacio = @id;
 	return 1
 end
+
  go
-/* INICIO DEL PROCEDIMIENTO espacio ELIMINAR */
+
 create procedure pa_eliminar_espacio
 	@id int
 as
@@ -260,47 +269,45 @@ else
 begin	
 	delete from espacio where id_espacio = @id
 	return 1
-end
+end;
+
  go
-/*INICIO DE LA VISTA DE espacio*/
+
 create view view_espacio
  as 
  select espacio.id_espacio, espacio.nombre, espacio.tipo_espacio, espacio.estado, parqueo.id_parqueo, parqueo.nombre as parqueo
  from espacio inner join parqueo on parqueo.id_parqueo = espacio.parqueo;
- /*----------------------------FIN DE ESPACIO-----------------------------------------------*/
+
  go
 
  create view view_espacio_disponibles
  as 
  select espacio.id_espacio, espacio.nombre, espacio.tipo_espacio, espacio.estado, parqueo.id_parqueo, parqueo.nombre as parqueo
  from espacio inner join parqueo on parqueo.id_parqueo = espacio.parqueo where espacio.estado <> 1;
- /*----------------------------FIN DE ESPACIO-----------------------------------------------*/
+
  go
 
  create view view_espacio_no_disponibles
  as 
  select espacio.id_espacio, espacio.nombre, espacio.tipo_espacio, espacio.estado, parqueo.id_parqueo, parqueo.nombre as parqueo
  from espacio inner join parqueo on parqueo.id_parqueo = espacio.parqueo where espacio.estado = 1;
- /*----------------------------FIN DE ESPACIO-----------------------------------------------*/
+
  go
 
  create view view_espacio_tipo_regular
  as 
  select espacio.id_espacio, espacio.nombre, espacio.tipo_espacio, espacio.estado, parqueo.id_parqueo, parqueo.nombre as parqueo
  from espacio inner join parqueo on parqueo.id_parqueo = espacio.parqueo where espacio.tipo_espacio = 'regular';
- /*----------------------------FIN DE ESPACIO-----------------------------------------------*/
+
  go
 
  create view view_espacio_tipo_especial
  as 
  select espacio.id_espacio, espacio.nombre, espacio.tipo_espacio, espacio.estado, parqueo.id_parqueo, parqueo.nombre as parqueo
  from espacio inner join parqueo on parqueo.id_parqueo = espacio.parqueo where espacio.tipo_espacio = 'especial';
- /*----------------------------FIN DE ESPACIO-----------------------------------------------*/
+
  go
 
-
-  /*----------------------------INICIO DE USUARIO-----------------------------------------------*/
-/* INICIO DEL PROCEDIMIENTO USUARIO AGREGAR */
 create procedure pa_agregar_usuario
 	@username nvarchar(50),
 	@id int,
@@ -316,10 +323,10 @@ begin
 	insert into usuario(username,id,nombre,direccion,telefono,contrasena)
 	values (@username,@id,@nombre,@direccion,@telefono,@contrasena);	
 	return 1
-end
+end;
+
 go
- go
-/* INICIO DEL PROCEDIMIENTO USUARIO ACTUALIZAR */
+
 create procedure pa_actualizar_usuario
 	@id int,
 	@nombre nvarchar(50),
@@ -334,9 +341,10 @@ begin
 	update usuario set nombre=@nombre,direccion=@direccion, telefono = @telefono,contrasena = @contrasena
 	where id = @id;
 	return 1
-end
+end;
+
  go
- /* INICIO DEL PROCEDIMIENTO USUARIO ACTUALIZAR ADMIN */
+
 create procedure pa_actualizar_usuario_tipo
 	@id int,
 	@tipo tinyint
@@ -348,9 +356,10 @@ begin
 	update usuario set tipo = @tipo
 	where id = @id;
 	return 1
-end
+end;
+
  go
-/* INICIO DEL PROCEDIMIENTO USUARIO ELIMINAR */
+
 create procedure pa_eliminar_usuario
 	@id int
 as
@@ -362,17 +371,17 @@ else
 begin	
 	delete from usuario where id = @id
 	return 1
-end
+end;
+
  go
-/*INICIO DE LA VISTA DE USUARIO*/
+
 create view view_usuario
  as 
  select usuario.username, usuario.id, usuario.nombre, usuario.tipo, usuario.telefono,usuario.direccion,usuario.contrasena 
- from usuario
- /*----------------------------FIN DE USUARIO-----------------------------------------------*/
+ from usuario;
+
  go
- /*----------------------------INICIO DE USUARIO-----------------------------------------------*/
-/* INICIO DEL PROCEDIMIENTO USUARIO AGREGAR */
+
 create procedure pa_agregar_vehiculo
 	@placa varchar(50),
 	@marca varchar(50),
@@ -386,9 +395,10 @@ begin
 	insert into vehiculo(placa,marca,modelo,usuario)
 	values (@placa,@marca,@modelo,@usuario);	
 	return 1
-end
+end;
+
  go
-/* INICIO DEL PROCEDIMIENTO USUARIO ACTUALIZAR */
+
 create procedure pa_actualizar_vehiculo
 	@placa varchar(50),
 	@marca varchar(50),
@@ -401,10 +411,10 @@ begin
 	update vehiculo set marca=@marca,modelo=@modelo
 	where placa = @placa;
 	return 1
-end
+end;
+
  go
 
-/* INICIO DEL PROCEDIMIENTO USUARIO ELIMINAR */
 create procedure pa_eliminar_vehiculo
 	@id nvarchar(50)
 as
@@ -417,16 +427,16 @@ begin
 	delete from vehiculo where placa = @id
 	return 1
 end
+
  go
-/*INICIO DE LA VISTA DE Vehiculo*/
+
 create view view_vehiculo
  as 
  select vehiculo.placa, vehiculo.marca, vehiculo.modelo, usuario.username
  from vehiculo inner join usuario on usuario.username = vehiculo.usuario;
- /*----------------------------FIN DE VEHICULO-----------------------------------------------*/
+
  go
 
- /* INICIO DEL PROCEDIMIENTO RESERVA AGREGAR */
 use AvantiParking
 go
 create procedure pa_agregar_reserva
@@ -447,9 +457,10 @@ begin
 	insert into reserva (espacio,fecha_reserva,hora_inicio,hora_final,usuario,vehiculo)
 	values (@espacio,@fecha_reserva,@hora_inicio,@hora_final,@usuario,@vehiculo);	
 	return 1
-end
+end;
+
  go
-/* INICIO DEL PROCEDIMIENTO RESERVA ELIMINAR */
+
 create procedure pa_eliminar_reserva
 	@id_reserva int
 as
@@ -461,9 +472,10 @@ else
 begin	
 	delete from reserva where id_reserva = @id_reserva
 	return 1
-end
+end;
+
 go
-/*INICIO DE LA VISTA DE RESERVA*/
+
 create view vista_reserva
  as 
  select reserva.id_reserva, reserva.espacio, reserva.fecha_reserva, reserva.hora_inicio, 
@@ -471,9 +483,7 @@ create view vista_reserva
  from reserva inner join usuario on usuario.username = reserva.usuario inner join vehiculo on vehiculo.placa = reserva.vehiculo;
 
  go
- /*FINAL DE LAS RESERVAS */
 
- /* Insertar espacio */
 create trigger dis_insertar_espacio
 	on espacio
 	for insert
@@ -485,8 +495,6 @@ as
 	set @quantity = @quantity + 1
 	update parqueo set cantidad = @quantity where id_parqueo =@idParqueo;
 	
-/*Fin del trigger espacio */
-/*Crear parqueos */
 go
 create trigger dis_crear_espacios_parqueo
 	on parqueo
@@ -502,10 +510,10 @@ as
 	begin
 		insert into espacio(nombre,estado,tipo_espacio,parqueo) values (@contador,0,'regular',@idParqueo)
 		set @contador = @contador + 1
-	end
-/*FINAL DEL TRIGGER CREAR ESPACIO */
+	end;
+
 GO
-/*ELIMINAR ESPACIO */
+
 create trigger dis_eliminar_espacio
 	on espacio
 	for delete
@@ -527,10 +535,7 @@ as
 		set @quantity = @quantity - @contador
 		print(@quantity)
 		update parqueo set cantidad = @quantity where id_parqueo =@idParqueo;
-	end
-/*FINAL ELIMINAR ESPACIO */
-
-/*FUNCION ESPACIOS*/
+	end;
 
 go
 
@@ -546,9 +551,8 @@ return
  from espacio
  where espacio.tipo_espacio = @Tipo and espacio.parqueo = @Parqueo and espacio.estado = @Disponibilidad; 
 
-/*FIN ESPACIO     */
-
 go
+
 create trigger disp_insertar_reserva_fecha_anterior
 	on reserva
 	for insert
@@ -563,20 +567,44 @@ as
 		rollback transaction
 end
 
-SELECT 
-    pr.name ,
-    pr.type_desc ,
-    pr.create_date ,
-    mod.definition
-FROM sys.procedures pr
-INNER JOIN sys.sql_modules mod ON pr.object_id = mod.object_id
-WHERE pr.Is_MS_Shipped = 0
+go
 
-SELECT 
+ create trigger disp_insertar_reserva_choque_reserva
+	on reserva
+	for insert
+as
+	declare @cont int
+	declare @inicio1 time
+	declare @fin1 time
+	declare @inicioInsertada time
+	declare @idReservaInsertada int
+	declare @idReserva int
+	declare @espacio int
+	declare @message varchar(200)
+	select @inicioInsertada = hora_inicio from inserted
+	select @idReservaInsertada = id_Reserva from inserted
+	select @espacio = espacio from inserted
+	select @cont = count(*) from reserva
+	if( @cont> 1)
+	begin
+		select @inicio1 = hora_inicio, @fin1 = hora_final, @idReserva = id_reserva from reserva where fecha_reserva = (select fecha_reserva from inserted) and id_reserva != @idReservaInsertada and espacio =@espacio
+		if(@inicioInsertada = @inicio1) or (@inicioInsertada < @fin1)
+		begin
+			set @message = concat('***ERROR*** La nueva reserva id: ',@idReservaInsertada, ' choca con la reserva id: ',@idReserva)
+			raiserror(@message,16,1)
+			rollback transaction
+		end
+	end;
+
+	go
+
+create view view_admin
+ as 
+ SELECT 
     pr.name ,
     pr.type_desc ,
     pr.create_date ,
     mod.definition
 FROM sys.all_objects pr
 INNER JOIN sys.sql_modules mod ON pr.object_id = mod.object_id
-WHERE pr.Is_MS_Shipped = 0
+WHERE pr.Is_MS_Shipped = 0;
