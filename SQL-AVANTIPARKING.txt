@@ -16,12 +16,23 @@ COLLATE Modern_Spanish_CI_AI
 go
 use AvantiParking
 go
-CREATE USER regUser WITH PASSWORD = '2019'
-CREATE USER adminUser WITH PASSWORD = 'adminBD'
+CREATE USER regUser WITH PASSWORD = 'XASDASF123SAa'
+CREATE USER adminUser WITH PASSWORD = 'QEGI23dsaC'
 
 ALTER ROLE db_owner ADD MEMBER adminUser;
 ALTER ROLE db_datawriter ADD MEMBER regUser;
 ALTER ROLE db_datareader ADD MEMBER regUser;
+ALTER ROLE db_ddladmin ADD MEMBER regUser;
+
+
+BACKUP DATABASE AvantiParking
+TO DISK = 'C:\Respaldo\respaldo.bak'
+   WITH FORMAT,
+      MEDIANAME = 'SQLServerBackups',
+      NAME = 'Full Backup of AvantiParking';
+GO
+
+ BACKUP DATABASE AvantiParking  TO DISK = 'C:\Respaldo\_respaldo.bak'  WITH FORMAT, MEDIANAME = 'SQLServerBackups',  NAME = 'Full Backup of AvantiParking'; 
 
 use AvantiParking
 go
@@ -518,3 +529,54 @@ as
 		update parqueo set cantidad = @quantity where id_parqueo =@idParqueo;
 	end
 /*FINAL ELIMINAR ESPACIO */
+
+/*FUNCION ESPACIOS*/
+
+go
+
+create function vistaEspacioPorSedes(
+@Parqueo int ,
+@Tipo nvarchar(55) ,
+@Disponibilidad int 
+)
+returns table
+as
+return
+ select espacio.*
+ from espacio
+ where espacio.tipo_espacio = @Tipo and espacio.parqueo = @Parqueo and espacio.estado = @Disponibilidad; 
+
+/*FIN ESPACIO     */
+
+go
+create trigger disp_insertar_reserva_fecha_anterior
+	on reserva
+	for insert
+as
+	declare @actual datetime
+	declare @insertada datetime
+	select @insertada = fecha_reserva from inserted
+	select @actual = CONVERT(date, GETDATE(), 105)
+	if(@insertada < @actual)	
+	begin
+		raiserror('**ERROR** No se pueden realizar reservas al anteriores al dia de hoy',16,1)
+		rollback transaction
+end
+
+SELECT 
+    pr.name ,
+    pr.type_desc ,
+    pr.create_date ,
+    mod.definition
+FROM sys.procedures pr
+INNER JOIN sys.sql_modules mod ON pr.object_id = mod.object_id
+WHERE pr.Is_MS_Shipped = 0
+
+SELECT 
+    pr.name ,
+    pr.type_desc ,
+    pr.create_date ,
+    mod.definition
+FROM sys.all_objects pr
+INNER JOIN sys.sql_modules mod ON pr.object_id = mod.object_id
+WHERE pr.Is_MS_Shipped = 0
