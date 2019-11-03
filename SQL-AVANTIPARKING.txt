@@ -621,3 +621,113 @@ as
     NAME = 'Full Backup of AvantiParking';
 
 	exec pa_admin;
+
+use AvantiParking
+go
+create table auditorias(
+	id int identity(1,1) not null,
+	tabla varchar(15) not null,
+	usuario varchar(15) not null,
+	fecha datetime not null,
+	accion varchar(15) not null,
+	detalle varchar(400) not null
+	primary key(id)
+)
+go
+
+if object_id('disp_auditar_eliminar') is not null 
+	drop trigger disp_auditar_eliminar;
+go
+create trigger disp_auditar_eliminar
+	on reserva
+	for delete
+as set nocount on
+
+	declare @usuario varchar(15)
+	declare @fecha datetime
+	declare @detalle varchar(400)
+	declare @cant int   
+
+	declare @idReserva int
+	declare @espacio int
+	declare @fecha_reserva date
+	declare @hora_final time
+	declare @hora_inicio time
+	declare @usuarioT varchar(50)
+	declare @vehiculo varchar(50)
+
+	set @fecha = GETDATE()
+	set @usuario = SYSTEM_USER
+	select @cant= COUNT(id_reserva) from deleted
+	
+	if (@cant > 1)
+	begin
+		raiserror('**ERROR** No se puede eliminar mas de un registro a la vez',16,1)
+		rollback transaction
+	end
+	else
+	begin
+		select @idReserva = id_reserva, @espacio = espacio, @fecha_reserva = fecha_reserva, @hora_final = hora_final,
+		@hora_inicio = hora_inicio, @usuarioT = usuario, @vehiculo = vehiculo from deleted
+		set @detalle = CONCAT('id_reserva: ',@idReserva,' espacio:',@espacio,' fecha_reserva: ',@fecha_reserva,
+		' hora_final: ',@hora_final,' hora_inicio: ',@hora_inicio,' usuario: ', @usuario, 
+		' vehiculo: ',@vehiculo )
+		insert into auditorias values('reserva',@usuario,@fecha,'delete',@detalle)
+	end;
+go
+
+if object_id('disp_auditar_editar') is not null 
+	drop trigger disp_auditar_editar;
+go
+create trigger disp_auditar_editar
+	on reserva
+	for update
+as set nocount on
+
+	declare @usuario varchar(15)
+	declare @fecha datetime
+	declare @detalle varchar(400)
+	declare @cant int   
+
+	declare @idReserva int
+	declare @espacio int
+	declare @fecha_reserva date
+	declare @hora_final time
+	declare @hora_inicio time
+	declare @usuarioT varchar(50)
+	declare @vehiculo varchar(50)
+
+	set @fecha = GETDATE()
+	set @usuario = SYSTEM_USER
+	select @cant= COUNT(id_reserva) from deleted
+	
+	if (@cant > 1)
+	begin
+		raiserror('**ERROR** No se puede editar mas de un registro a la vez',16,1)
+		rollback transaction
+	end
+	else
+	begin
+		select @idReserva = id_reserva, @espacio = espacio, @fecha_reserva = fecha_reserva, @hora_final = hora_final,
+		@hora_inicio = hora_inicio, @usuarioT = usuario, @vehiculo = vehiculo from deleted
+		set @detalle = CONCAT('OLD [','id_reserva: ',@idReserva,' espacio:',@espacio,' fecha_reserva: ',@fecha_reserva,
+		' hora_final: ',@hora_final,' hora_inicio: ',@hora_inicio,' usuario: ', @usuario, 
+		' vehiculo: ',@vehiculo )
+		select @idReserva = id_reserva, @espacio = espacio, @fecha_reserva = fecha_reserva, @hora_final = hora_final,
+		@hora_inicio = hora_inicio, @usuarioT = usuario, @vehiculo = vehiculo from inserted
+		set @detalle = CONCAT(@detalle,'] NEW [','id_reserva: ',@idReserva,' espacio:',@espacio,' fecha_reserva: ',@fecha_reserva,
+		' hora_final: ',@hora_final,' hora_inicio: ',@hora_inicio,' usuario: ', @usuario, 
+		' vehiculo: ',@vehiculo,']' )
+		insert into auditorias values('reserva',@usuario,@fecha,'update',@detalle)
+	end;
+go
+
+select * from reserva
+update reserva set espacio = 20 where id_reserva = 66
+select * from auditorias
+delete from auditorias 
+delete from reserva where id_reserva = 66
+insert into reserva values(18,'11-5-2019','8:00','9:00','maucbs@gmail.com','hsr-896')
+insert into reserva values(18,'11-6-2019','8:00','9:00','maucbs@gmail.com','hsr-896')
+insert into reserva values(18,'11-7-2019','8:00','9:00','maucbs@gmail.com','hsr-896')
+insert into reserva values(18,'11-8-2019','8:00','9:00','maucbs@gmail.com','hsr-896')
