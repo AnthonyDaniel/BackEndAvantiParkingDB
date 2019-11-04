@@ -50,4 +50,11 @@ class Reserva extends Controller
         }
         return  response()->json(['data' => 'Reserva eliminado correctamente'], 200);
     }
+    public function auditoriaReserva(){
+        try{
+            return DB::SELECT("select * from auditorias");
+        }catch(\Illuminate\Database\QueryException $e){
+            return  response()->json(['error' => $e], 406);
+        }
+    }
 }

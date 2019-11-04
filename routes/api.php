@@ -221,4 +221,6 @@ Route::group([
     */
     Route::delete('reserva/{id}','Reserva@eliminarReserva');
     /*------------------------------Reserva  FIN-------------------------------------- */ 
+
+    Route::get('auditoriareserva','Reserva@auditoriaReserva');
 });
