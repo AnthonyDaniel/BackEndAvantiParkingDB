@@ -620,7 +620,7 @@ as
     MEDIANAME = 'SQLServerBackups',
     NAME = 'Full Backup of AvantiParking';
 
-	exec pa_admin;
+
 
 use AvantiParking
 go
