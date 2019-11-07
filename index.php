@@ -9,7 +9,7 @@
 
 define('LARAVEL_START', microtime(true));
 
-header('Access-Control-Allow-Origin: *'); 
+header('Access-Control-Allow-Origin: https://avantiparking-688e4.web.app/'); 
 
 header("Access-Control-Allow-Credentials: true");
 header('Access-Control-Allow-Methods: *');
